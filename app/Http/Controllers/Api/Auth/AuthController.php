@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Auth;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -40,26 +40,35 @@ class AuthController extends Controller
         }
     }
 
-    public function register(Request $request)
-    {
-        try {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email',
-                'phone' => 'required|string|max:15',
-                'password' => 'required|string|min:6|confirmed',
-            ]);
+   public function register(Request $request)
+{
+    try {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+        ]);
 
-            $data = $request->only('name', 'email', 'phone', 'password');
-            $response = $this->authService->register($data);
+        $data = $request->only('name', 'email', 'password');
 
-            return response()->json($response, 201);
-        } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->errors()], 422);
-        } catch (Exception $e) {
-            return response()->json(['message' => 'Erro no servidor', 'error' => $e->getMessage()], 500);
-        }
+        // Garante que a senha será criptografada
+        $data['password'] = \Illuminate\Support\Facades\Hash::make($data['password']);
+
+        $response = $this->authService->register($data);
+
+        return response()->json($response, 201);
+
+    } catch (ValidationException $e) {
+        return response()->json(['errors' => $e->errors()], 422);
+    } catch (Exception $e) {
+        // Mostra erro real no log
+        \Log::error('Erro no registro', ['error' => $e->getMessage()]);
+        return response()->json([
+            'message' => 'Erro no servidor',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
     public function logout(Request $request)
     {
