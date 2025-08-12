@@ -1,82 +1,48 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Service\Auth\AuthService;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
-use Exception;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    private AuthService $authService;
-
-    public function __construct(AuthService $authService)
+    public function register(Request $request)
     {
-        $this->authService = $authService;
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|string|email|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        return response()->json(['message' => 'User registered successfully']);
     }
 
     public function login(Request $request)
     {
-        Log::error('Login request received', ['request' => $request->all()]);
+        $credentials = $request->only('email', 'password');
 
-        try {
-            $request->validate([
-                'email' => 'required|email',
-                'password' => 'required|string|min:6',
-            ]);
-
-            $credentials = $request->only('email', 'password');
-
-            $response = $this->authService->login($credentials);
-
-            return response()->json($response, 200);
-        } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->errors()], 422);
-        } catch (Exception $e) {
-            return response()->json(['message' => 'Erro no servidor.' . $e->getMessage()], 500);
+        if (!Auth::attempt($credentials)) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
         }
+
+        $user = Auth::user();
+        $token = $user->createToken('authToken')->accessToken;
+
+        return response()->json(['token' => $token, 'user' => $user]);
     }
 
-   public function register(Request $request)
-{
-    try {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-        ]);
-
-        $data = $request->only('name', 'email', 'password');
-
-        // Garante que a senha será criptografada
-        $data['password'] = \Illuminate\Support\Facades\Hash::make($data['password']);
-
-        $response = $this->authService->register($data);
-
-        return response()->json($response, 201);
-
-    } catch (ValidationException $e) {
-        return response()->json(['errors' => $e->errors()], 422);
-    } catch (Exception $e) {
-        // Mostra erro real no log
-        \Log::error('Erro no registro', ['error' => $e->getMessage()]);
-        return response()->json([
-            'message' => 'Erro no servidor',
-            'error' => $e->getMessage()
-        ], 500);
-    }
-}
-
-    public function logout(Request $request)
+    public function user(Request $request)
     {
-        try {
-            $this->authService->logout($request);
-            return response()->json(['message' => 'Logout realizado com sucesso.'], 200);
-        } catch (Exception $e) {
-            return response()->json(['message' => 'Erro ao fazer logout.'], 500);
-        }
+        return response()->json($request->user());
     }
 }
