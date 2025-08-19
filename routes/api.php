@@ -29,3 +29,4 @@ Route::middleware('auth:api')->get('/oauth/personal-access-tokens', [PersonalAcc
 Route::middleware('auth:api')->delete('/oauth/personal-access-tokens/{token_id}', [PersonalAccessTokenController::class, 'destroy']);
 Route::middleware('auth:api')->get('/oauth/token/refresh', [TransientTokenController::class, 'refresh']);
 
+require __DIR__.'/api/vaccines.php';
