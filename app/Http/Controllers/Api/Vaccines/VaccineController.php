@@ -62,4 +62,66 @@ class VaccineController extends Controller
             ], 500);
         }
     }
+
+     public function update(Request $request, $id)
+    {
+        try {
+            $vaccine = Vaccine::findOrFail($id);
+
+            $validated = $request->validate([
+                'full_name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:leads,email,' . $id,
+                'phone' => 'nullable|string|max:20',
+                'message' => 'required|string|max:600'
+            ]);
+
+            $vaccine->update($validated);
+
+            return response()->json(['message' => 'Vacina editada com sucesso.', 'vaccine' => $vaccine], 200);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Erro ao editar vacina.', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $vaccine = Vaccine::findOrFail($id);
+            $vaccine->delete();
+
+            return response()->json(['message' => 'Vacina excluída com sucesso.'], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Erro ao excluir a vacina.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function count()
+    {
+        $vaccine = Vaccine::withTrashed()->count();
+        return response()->json([
+            'total' => $vaccine,
+            'data' => $vaccine,
+            'message' => 'Quantidade de vacinas atualizada com sucesso',
+        ], 200);
+    }
+
+    public function forceDelete($id)
+        {
+            try {
+                $vaccine = Vaccine::withTrashed()->findOrFail($id);
+                $vaccine->forceDelete();
+
+            return response()->json([
+            'message' => 'Vacina excluída permanentemente.'
+            ], 200);
+            } catch (Exception $e) {
+        return response()->json([
+            'message' => 'Erro ao excluir permanentemente.',
+            'error' => $e->getMessage()
+        ], 500);
+            }
+        }
 }
