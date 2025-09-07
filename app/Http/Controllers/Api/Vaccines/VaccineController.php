@@ -69,10 +69,10 @@ class VaccineController extends Controller
             $vaccine = Vaccine::findOrFail($id);
 
             $validated = $request->validate([
-                'full_name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:leads,email,' . $id,
-                'phone' => 'nullable|string|max:20',
-                'message' => 'required|string|max:600'
+                'name' => 'required|string|max:255',
+                'age_range' => 'required|string|max:255',
+                'status' => 'required|string|max:100',
+                'application_date' => 'required|string|max:100',
             ]);
 
             $vaccine->update($validated);
