@@ -31,3 +31,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 require_once __DIR__.'/api/vaccines.php';
 require_once __DIR__. '/api/leads.php';
+require_once __DIR__. '/api/families.php';
