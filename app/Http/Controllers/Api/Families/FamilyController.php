@@ -17,6 +17,7 @@ class FamilyController extends Controller {
            // 'name' => 'required|string|max:255',
             'relative_name' => 'required|string|max:255',
             'age' => 'required|string|max:255',
+            'status' => 'required|string|max:100',
             'name_vaccine' => 'required|string|max:255',
             'application_date' => 'required|string|max:100',
         ]);
@@ -72,6 +73,7 @@ class FamilyController extends Controller {
             //    'name' => 'required|string|max:255',
                 'relative_name' => 'required|string|max:255',
                 'age' => 'required|string|max:255',
+                'status' => 'required|string|max:100',
                 'name_vaccine' => 'required|string|max:255',
                 'application_date' => 'required|string|max:100',
             ]);

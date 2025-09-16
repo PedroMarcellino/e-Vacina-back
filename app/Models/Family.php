@@ -15,6 +15,7 @@ class Family extends Model
        // 'name',
         'relative_name',
         'age',
+        'status',
         'name_vaccine',
         'application_date'
     ];
