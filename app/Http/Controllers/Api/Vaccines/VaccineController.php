@@ -124,4 +124,34 @@ class VaccineController extends Controller
         ], 500);
             }
         }
+
+    public function lastVaccine()
+{
+    try {
+        $vaccine = Vaccine::orderBy('application_date', 'desc')->first();
+
+        if (!$vaccine) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Nenhuma vacina encontrada.',
+                'data' => null
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Última vacina encontrada com sucesso.',
+            'data' => $vaccine
+        ], 200);
+
+    } catch (Exception $e) {
+        Log::error('Erro ao buscar última vacina: ' . $e->getMessage());
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Erro ao buscar última vacina.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 }

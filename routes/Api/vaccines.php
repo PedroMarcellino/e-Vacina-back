@@ -11,5 +11,6 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/vaccines/forceDelete/{id}', [VaccineController::class, 'forceDelete']);
     Route::put('/vaccines/update/{id}', [VaccineController::class, 'update']);
     Route::get('/vaccines/count', [VaccineController::class, 'count']);
+    Route::get('/vaccines/last', [VaccineController::class, 'lastVaccine']);
 
 });

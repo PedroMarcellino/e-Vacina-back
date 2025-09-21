@@ -11,11 +11,16 @@ use Laravel\Passport\Http\Controllers\TransientTokenController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
 
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
 
 
 
@@ -32,3 +37,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 require_once __DIR__.'/api/vaccines.php';
 require_once __DIR__. '/api/leads.php';
 require_once __DIR__. '/api/families.php';
+require_once __DIR__. '/api/user.php';
