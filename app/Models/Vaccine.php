@@ -13,11 +13,17 @@ class Vaccine extends Model
     use Notifiable, SoftDeletes;
 
     protected $fillable = [
-        
+
         'name',
         'age_range',
         'status',
-        'application_date'
-        
+        'application_date',
+        'user_id'
+
     ];
+
+     public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

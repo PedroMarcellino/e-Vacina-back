@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Api\Vaccines;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Vaccine;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
 class VaccineController extends Controller
 {
-    
-    public function store(Request $request) 
+
+    public function store(Request $request)
     {
         try {
         $validated = $request->validate([
@@ -21,7 +22,13 @@ class VaccineController extends Controller
             'application_date' => 'required|string|max:100',
         ]);
 
-        $vaccine = Vaccine::create($validated);
+        $vaccine = Vaccine::create([
+        'name' => $request->name,
+        'age_range' => $request->age_range,
+        'status' => $request->status,
+        'application_date' => $request->application_date,
+        'user_id' => Auth::id(),
+    ]);
 
         return response()->json([
             'success' => true,
@@ -44,7 +51,9 @@ class VaccineController extends Controller
     public function getAllVaccines()
     {
         try {
-            $vaccine = Vaccine::all();
+
+            $user = Auth::user();
+            return Vaccine::where('user_id', $user->id)->get();
 
             return response()->json([
                 'success' => true,
@@ -98,15 +107,33 @@ class VaccineController extends Controller
         }
     }
 
-    public function count()
-    {
-        $vaccine = Vaccine::withTrashed()->count();
+   public function count()
+{
+    try {
+        $userId = Auth::id(); // pega usuário autenticado
+
+        $vaccineCount = Vaccine::withTrashed()
+            ->where('user_id', $userId) // filtra pelo usuário
+            ->count();
+
         return response()->json([
-            'total' => $vaccine,
-            'data' => $vaccine,
+            'success' => true,
+            'total'   => $vaccineCount,
+            'data'    => $vaccineCount,
             'message' => 'Quantidade de vacinas atualizada com sucesso',
         ], 200);
+
+    } catch (Exception $e) {
+        Log::error('Erro ao contar vacinas: ' . $e->getMessage());
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Erro ao contar vacinas.',
+            'error'   => $e->getMessage()
+        ], 500);
     }
+}
+
 
     public function forceDelete($id)
         {
@@ -125,23 +152,28 @@ class VaccineController extends Controller
             }
         }
 
-    public function lastVaccine()
+
+public function lastVaccine()
 {
     try {
-        $vaccine = Vaccine::orderBy('application_date', 'desc')->first();
+        $userId = Auth::id(); // pega usuário autenticado
+
+        $vaccine = Vaccine::where('user_id', $userId) // filtra pelo usuário
+            ->orderBy('application_date', 'desc')
+            ->first();
 
         if (!$vaccine) {
             return response()->json([
                 'success' => true,
                 'message' => 'Nenhuma vacina encontrada.',
-                'data' => null
+                'data'    => null
             ], 200);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Última vacina encontrada com sucesso.',
-            'data' => $vaccine
+            'data'    => $vaccine
         ], 200);
 
     } catch (Exception $e) {
@@ -150,7 +182,7 @@ class VaccineController extends Controller
         return response()->json([
             'success' => false,
             'message' => 'Erro ao buscar última vacina.',
-            'error' => $e->getMessage()
+            'error'   => $e->getMessage()
         ], 500);
     }
 }
