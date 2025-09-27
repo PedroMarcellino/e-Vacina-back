@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Notifications\ResetPasswordNotification;
 use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
@@ -30,8 +31,8 @@ class User extends Authenticatable
 
     public function getPhotoUrlAttribute()
     {
-        return $this->photo 
-            ? asset('storage/' . $this->photo) 
+        return $this->photo
+            ? asset('storage/' . $this->photo)
             : asset('images/default-avatar.png'); // opcional: imagem padrão
     }
 
@@ -57,4 +58,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+   public function sendPasswordResetNotification($token)
+{
+    $front = rtrim(env('FRONTEND_URL', 'http://localhost:4200'), '/');
+    $url = $front . '/reset-password?token=' . $token . '&email=' . urlencode($this->email);
+
+    $this->notify(new \App\Notifications\ResetPasswordNotification($url));
+}
 }

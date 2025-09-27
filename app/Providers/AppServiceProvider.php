@@ -2,28 +2,40 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Laravel\Passport\Passport;
+use Illuminate\Auth\Notifications\ResetPassword;
 
-class AppServiceProvider extends ServiceProvider
+class AuthServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * The policy mappings for the application.
+     *
+     * @var array<class-string, class-string>
      */
-    public function register(): void
-    {
-        //
-    }
-
-
+    protected $policies = [
+        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
+    ];
 
     /**
-     * Bootstrap any application services.
+     * Register any authentication / authorization services.
      */
     public function boot(): void
-{
-    Passport::tokensExpireIn(now()->addDays(15));
-    Passport::refreshTokensExpireIn(now()->addDays(30));
-    Passport::personalAccessTokensExpireIn(now()->addMonths(6));
+    {
+        // Aqui SIM existe:
+        $this->registerPolicies();
+
+        // Configurações do Passport
+        Passport::tokensExpireIn(now()->addDays(15));
+        Passport::refreshTokensExpireIn(now()->addDays(30));
+        Passport::personalAccessTokensExpireIn(now()->addMonths(6));
+
+        // Link de redefinição apontando para o front (Angular)
+        $this->registerPolicies();
+
+        ResetPassword::createUrlUsing(function ($user, string $token) {
+        $front = env('FRONTEND_URL', 'http://localhost:4200/reset-password');
+        return $front.'?token='.$token.'&email='.urlencode($user->email);
+    });
+    }
 }
-};
