@@ -92,20 +92,25 @@ class VaccineController extends Controller
         }
     }
 
-    public function destroy($id)
-    {
-        try {
-            $vaccine = Vaccine::findOrFail($id);
-            $vaccine->delete();
+   public function destroy($id)
+{
+    try {
+        $vaccine = Vaccine::findOrFail($id);
+        $vaccine->forceDelete();
 
-            return response()->json(['message' => 'Vacina excluída com sucesso.'], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Erro ao excluir a vacina.',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Vacina excluída definitivamente.'
+        ], 200);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erro ao excluir a vacina.',
+            'error'   => $e->getMessage()
+        ], 500);
     }
+}
 
    public function count()
 {
@@ -135,22 +140,26 @@ class VaccineController extends Controller
 }
 
 
-    public function forceDelete($id)
-        {
-            try {
-                $vaccine = Vaccine::withTrashed()->findOrFail($id);
-                $vaccine->forceDelete();
+   public function forceDelete($id)
+{
+    try {
+        $vaccine = Vaccine::withTrashed()->findOrFail($id);
 
-            return response()->json([
-            'message' => 'Vacina excluída permanentemente.'
-            ], 200);
-            } catch (Exception $e) {
+        $vaccine->forceDelete();
+
         return response()->json([
+            'success' => true,
+            'message' => 'Vacina excluída permanentemente.'
+        ], 200);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
             'message' => 'Erro ao excluir permanentemente.',
             'error' => $e->getMessage()
         ], 500);
-            }
-        }
+    }
+}
 
 
 public function lastVaccine()
