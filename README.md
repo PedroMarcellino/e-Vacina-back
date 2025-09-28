@@ -43,7 +43,14 @@ O objetivo principal é fornecer uma solução digital para o **monitoramento e 
    ```bash
    git clone https://github.com/PedroMarcellino/e-Vacina-back.git
 
+   baixar o composer
    depois rode composer install
+
+   gerar chaves para rodar 
    php artisan key:generate
+
+   rodar as migrations
    php artisan migrate
+
+   rodar o servidor
    php artisan serve
