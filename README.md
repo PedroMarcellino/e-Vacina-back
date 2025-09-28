@@ -55,7 +55,7 @@ O objetivo principal é fornecer uma solução digital para o **monitoramento e 
    rodar o servidor
    php artisan serve
 
-👨‍💻 Autores:
+👨‍💻 Autor:
 Pedro Marcellino – Desenvolvedor
 
 
