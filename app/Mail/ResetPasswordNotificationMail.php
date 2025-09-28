@@ -25,7 +25,7 @@ class ResetPasswordNotificationMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('Redefinição de senha - eVacina')
+        return $this->subject('Redefinição de senha - e-Vacina')
                     ->markdown('emails.reset-password')
                     ->with(['url' => $this->url]);
     }
