@@ -9,32 +9,53 @@ use Illuminate\Support\Facades\Storage;
 class UserController extends Controller
 {
     public function uploadPhoto(Request $request)
-{
-    $request->validate([
-        'photo' => 'image|mimes:jpg,jpeg,png|max:2048',
-    ]);
+    {
+        $request->validate([
+            'photo' => 'image|mimes:jpg,jpeg,png|max:2048',
+        ]);
 
-    $user = $request->user();
+        $user = $request->user();
 
-    if ($request->hasFile('photo')) {
-        // Apaga a antiga se existir
-        if ($user->photo && Storage::disk('public')->exists($user->photo)) {
-            Storage::disk('public')->delete($user->photo);
+        if ($request->hasFile('photo')) {
+            // Apaga a antiga se existir
+            if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+                Storage::disk('public')->delete($user->photo);
+            }
+
+            // Salva a nova
+            $path = $request->file('photo')->store('photos', 'public');
+
+            $user->photo = $path;
+            $user->save();
+
+            return response()->json([
+                'message'   => 'Foto atualizada com sucesso!',
+                'photo_url' => $user->photo_url, // 🔹 vem do accessor
+                'user'      => $user,           // 🔹 retorna o user atualizado
+            ]);
         }
 
-        // Salva a nova
-        $path = $request->file('photo')->store('photos', 'public');
+        return response()->json(['error' => 'Nenhuma foto enviada'], 400);
+    }
 
-        $user->photo = $path;
+    public function update(Request $request)
+    {
+        $user = $request->user();
+
+        // Validação apenas para nome e e-mail
+        $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ]);
+
+        // Atualiza os campos
+        $user->name  = $request->name;
+        $user->email = $request->email;
         $user->save();
 
         return response()->json([
-            'message'   => 'Foto atualizada com sucesso!',
-            'photo_url' => $user->photo_url, // 🔹 vem do accessor
-            'user'      => $user,           // 🔹 retorna o user atualizado
+            'message' => 'Usuário atualizado com sucesso!',
+            'user'    => $user,
         ]);
     }
-
-    return response()->json(['error' => 'Nenhuma foto enviada'], 400);
-}
 }
