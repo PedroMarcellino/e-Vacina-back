@@ -16,6 +16,6 @@ class Lead extends Model
         'email',
         'phone',
         'message',
-        'user_id'
+      //  'user_id'
     ];
 }
