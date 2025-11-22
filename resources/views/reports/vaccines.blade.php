@@ -127,7 +127,7 @@
         <thead>
             <tr>
                 <th>Vacina</th>
-                <th>Faixa etária</th>
+                <th class="status-col">Faixa etária</th>
                 <th>Data da aplicação</th>
                 <th class="status-col">Status</th>
             </tr>
@@ -136,8 +136,8 @@
             @foreach ($vaccines as $vaccine)
             <tr>
                 <td>{{ $vaccine->name }}</td>
-                <td>{{ $vaccine->age_range }}</td>
-                <td>{{ \Carbon\Carbon::parse($vaccine->application_date)->format('d/m/Y') }}</td>
+                <td class="status-col">{{ $vaccine->age_range }}</td>
+                <td class="status-col">{{ \Carbon\Carbon::parse($vaccine->application_date)->format('d/m/Y') }}</td>
                 <td class="status-col">
 
                     @php
