@@ -53,20 +53,23 @@ class VaccineController extends Controller
         try {
 
             $user = Auth::user();
-            return Vaccine::where('user_id', $user->id)->get();
+            $perPage = request()->get('per_page', 10);
+            $vaccinePage = Vaccine::where('user_id', $user->id)->paginate($perPage);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Lista de vacinas restaurada com sucesso.',
-                'data' => $vaccine
-            ], 200);
+                'data' => $vaccinePage->items(), 
+                'meta' => [
+                    'current_page' => $vaccinePage->currentPage(),
+                    'last_page' => $vaccinePage->lastPage(),
+                    'per_page' => $vaccinePage->perPage(),
+                    'total' => $vaccinePage->total(),
+                ]
+            ]);
         } catch (Exception $e) {
-            Log::error('Erro ao buscar as vacinas: ' . $e->getMessage());
-
             return response()->json([
                 'success' => false,
-                'message' => 'Ocorreu um erro ao buscar as vacinas.',
-                'error' => $e->getMessage()
+                'message' => $e->getMessage()
             ], 500);
         }
     }
@@ -202,7 +205,7 @@ class VaccineController extends Controller
             $pdf = Pdf::loadView('reports.vaccines', [
                 'user' => $user,
                 'vaccines' => $vaccines,
-                'vaccineCount' => $vaccineCount 
+                'vaccineCount' => $vaccineCount
             ]);
 
             return $pdf->download('relatorio_vacinas.pdf');
