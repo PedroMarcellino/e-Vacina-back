@@ -15,4 +15,9 @@ class UserRepository
     {
         return User::where('email', $email)->first();
     }
+
+    public function findByCpf(string $cpf): ?User
+    {
+        return User::where('cpf', $cpf)->first();
+    }
 }

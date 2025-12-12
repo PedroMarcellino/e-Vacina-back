@@ -24,7 +24,7 @@ class AuthService
 
     public function login(array $credentials): ?array
     {
-        $user = $this->userRepository->findByEmail($credentials['email']);
+        $user = $this->userRepository->findByCpf($credentials['cpf']);
 
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
             return null;

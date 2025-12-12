@@ -25,6 +25,7 @@ class User extends Authenticatable
         'email',
         'password',
         'photo',
+        'cpf'
     ];
 
     protected $appends = ['photo_url']; // 🔹 sempre retorna no JSON
@@ -59,11 +60,11 @@ class User extends Authenticatable
         ];
     }
 
-   public function sendPasswordResetNotification($token)
-{
-    $front = rtrim(env('FRONTEND_URL', 'http://localhost:4200'), '/');
-    $url = $front . '/reset-password?token=' . $token . '&email=' . urlencode($this->email);
+    public function sendPasswordResetNotification($token)
+    {
+        $front = rtrim(env('FRONTEND_URL', 'http://localhost:4200'), '/');
+        $url = $front . '/reset-password?token=' . $token . '&email=' . urlencode($this->email);
 
-    $this->notify(new \App\Notifications\ResetPasswordNotification($url));
-}
+        $this->notify(new \App\Notifications\ResetPasswordNotification($url));
+    }
 }
