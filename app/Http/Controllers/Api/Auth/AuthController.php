@@ -53,53 +53,53 @@ class AuthController extends Controller
     }
 
     public function forgotPassword(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email'
-    ]);
+    {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
 
-    $status = Password::sendResetLink($request->only('email'));
+        $status = Password::sendResetLink($request->only('email'));
 
-    if ($status === Password::RESET_LINK_SENT) {
+        if ($status === Password::RESET_LINK_SENT) {
+            return response()->json([
+                'message' => __($status)
+            ], Response::HTTP_OK);
+        }
+
         return response()->json([
             'message' => __($status)
-        ], Response::HTTP_OK);
+        ], Response::HTTP_BAD_REQUEST);
     }
 
-    return response()->json([
-        'message' => __($status)
-    ], Response::HTTP_BAD_REQUEST);
-}
 
 
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'token' => 'required|string',
+            'email' => 'required|email',
+            'password' => 'required|min:6|confirmed',
+        ]);
 
-   public function resetPassword(Request $request): JsonResponse
-{
-    $request->validate([
-        'token' => 'required|string',
-        'email' => 'required|email',
-        'password' => 'required|min:6|confirmed',
-    ]);
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->setRememberToken(Str::random(60));
 
-    $status = Password::reset(
-        $request->only('email', 'password', 'password_confirmation', 'token'),
-        function (User $user, string $password) {
-            $user->forceFill([
-                'password' => Hash::make($password)
-            ])->setRememberToken(Str::random(60));
+                $user->save();
+            }
+        );
 
-            $user->save();
+        if ($status == Password::PASSWORD_RESET) {
+            return response()->json([
+                'message' => 'Senha redefinida com sucesso!'
+            ], Response::HTTP_OK);
         }
-    );
 
-    if ($status == Password::PASSWORD_RESET) {
         return response()->json([
-            'message' => 'Senha redefinida com sucesso!'
-        ], Response::HTTP_OK);
+            'message' => __($status)
+        ], Response::HTTP_BAD_REQUEST);
     }
-
-    return response()->json([
-        'message' => __($status)
-    ], Response::HTTP_BAD_REQUEST);
-}
 }

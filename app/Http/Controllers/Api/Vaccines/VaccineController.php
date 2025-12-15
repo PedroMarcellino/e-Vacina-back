@@ -8,28 +8,26 @@ use App\Models\Vaccine;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
+// use App\Http\Requests\Api\Vaccines;
+use App\Http\Requests\Api\Vaccine\VaccineRequest;
 use Exception;
 
 class VaccineController extends Controller
 {
 
-    public function store(Request $request)
+    public function store(VaccineRequest $request)
     {
         try {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'age_range' => 'required|string|max:255',
-                'status' => 'required|string|max:100',
-                'application_date' => 'required|string|max:100',
-            ]);
 
-            $vaccine = Vaccine::create([
-                'name' => $request->name,
-                'age_range' => $request->age_range,
-                'status' => $request->status,
-                'application_date' => $request->application_date,
-                'user_id' => Auth::id(),
-            ]);
+            $data = $request->validated();
+            // pega do VaccineRequest
+
+            // 2️ Associa o usuário autenticado
+            $data['user_id'] = Auth::id();
+
+            // 3️ Cria o registro já com o relacionamento
+            $vaccine = Vaccine::create($data);
+
 
             return response()->json([
                 'success' => true,
@@ -48,17 +46,30 @@ class VaccineController extends Controller
     }
 
 
-    public function getAllVaccines()
+    public function index(Request $request)
     {
         try {
 
             $user = Auth::user();
+            // vai pegar o usuario autentificado
+
+            $query = Vaccine::where('user_id', $user->id);
+            // vai buscar pelo o user_id
+
+            if ($request->boolean('nopage')) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Lista de Vacinas paginadas buscada com sucesso!!',
+                    'data' => $query->ordenBy('id')->get()
+                ], 200);
+            }
+
             $perPage = request()->get('per_page', 10);
             $vaccinePage = Vaccine::where('user_id', $user->id)->paginate($perPage);
 
             return response()->json([
                 'success' => true,
-                'data' => $vaccinePage->items(), 
+                'data' => $vaccinePage->items(),
                 'meta' => [
                     'current_page' => $vaccinePage->currentPage(),
                     'last_page' => $vaccinePage->lastPage(),

@@ -17,6 +17,16 @@ class Family extends Model
         'age',
         'status',
         'name_vaccine',
-        'application_date'
+        'application_date',
+        'user_id'
     ];
+
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
+
+    // belongsTo quer dizer que a propriedade pertence a outro modal tipo Igual nessa função
+    // fiz um belongsTo pra associar ao modal de users 
+
+    // Esse User::class é o modal
 }

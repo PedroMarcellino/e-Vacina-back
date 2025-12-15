@@ -7,6 +7,7 @@ use App\Http\Requests\Api\Leads\CreateLeadRequest;
 use Illuminate\Http\Request;
 use Exception;
 use App\Models\Lead;
+use Illuminate\Support\Facades\Auth;
 
 class LeadController extends Controller
 {
@@ -20,10 +21,33 @@ class LeadController extends Controller
         ], 201);
     }
 
-    public function getAll()
+    public function index(Request $request)
     {
-        $leads = Lead::all();
-        return response()->json($leads);
+        $user = Auth::user();
+
+        $query = Lead::where('user_id', $user->id);
+
+        if ($request->boolean('nopage')) {
+            return response()->json([
+                'success' => true,
+                'messange' => 'Lista de Lead recuperada com sucesso!',
+                'data' => $query->ordenBy('id')->get()
+            ], 200);
+        }
+
+        $perPage = request()->get('per_page', 10);
+        $leadPage = Lead::where('user_id', $user->id)->paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'data' => $leadPage->items(),
+            'meta' => [
+                'current_page' => $leadPage->currentPage(),
+                'last_page' => $leadPage->lastPage(),
+                'per_page' => $leadPage->perPage(),
+                'total' => $leadPage->total(),
+            ]
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -50,7 +74,7 @@ class LeadController extends Controller
     {
         try {
             $lead = Lead::findOrFail($id);
-            $lead->delete(); 
+            $lead->delete();
 
             return response()->json(['message' => 'Lead excluído com sucesso.'], 200);
         } catch (Exception $e) {
@@ -72,19 +96,19 @@ class LeadController extends Controller
     }
 
     public function forceDelete($id)
-        {
-            try {
-                $lead = Lead::withTrashed()->findOrFail($id);
-                $lead->forceDelete();
+    {
+        try {
+            $lead = Lead::withTrashed()->findOrFail($id);
+            $lead->forceDelete();
 
             return response()->json([
-            'message' => 'Lead excluído permanentemente.'
+                'message' => 'Lead excluído permanentemente.'
             ], 200);
-            } catch (Exception $e) {
-        return response()->json([
-            'message' => 'Erro ao excluir permanentemente.',
-            'error' => $e->getMessage()
-        ], 500);
-            }
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Erro ao excluir permanentemente.',
+                'error' => $e->getMessage()
+            ], 500);
         }
+    }
 }

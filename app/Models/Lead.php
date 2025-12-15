@@ -9,13 +9,18 @@ use Laravel\Passport\HasApiTokens;
 
 class Lead extends Model
 {
-    use Notifiable, SoftDeletes;
+  use Notifiable, SoftDeletes;
 
-    protected $fillable = [
-        'full_name',
-        'email',
-        'phone',
-        'message',
-      //  'user_id'
-    ];
+  protected $fillable = [
+    'full_name',
+    'email',
+    'phone',
+    'message',
+    'user_id'
+  ];
+
+  public function user()
+  {
+    return $this->belongsTo(User::class);
+  }
 }

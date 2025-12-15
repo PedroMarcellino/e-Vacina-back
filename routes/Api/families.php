@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Families\FamilyController;
 
 Route::middleware('auth:api')->group(function () {
-    Route::get('/families/all', [FamilyController::class, 'getAllFamily']);
+    Route::get('/families/all', [FamilyController::class, 'index']);
     Route::post('/families/create', [FamilyController::class, 'store']);
     Route::delete('/families/{id}', [FamilyController::class, 'destroy']);
     Route::delete('/families/forceDelete/{id}', [FamilyController::class, 'forceDelete']);
