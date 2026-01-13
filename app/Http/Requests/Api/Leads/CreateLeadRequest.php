@@ -17,8 +17,8 @@ class CreateLeadRequest extends FormRequest
         return [
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'phone' => 'nullable|string|max:20',
-            'message' => 'required|string|max:2000',
+            'phone' => 'required|string|max:20',
+            'message' => 'nullable|string|max:2000',
         ];
     }
 }
