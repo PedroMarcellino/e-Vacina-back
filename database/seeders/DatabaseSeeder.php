@@ -16,9 +16,12 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => 'teste123456',
+           // 'name' => 'Test User',
+           // 'email' => 'test@example.com',
+           // 'password' => 'teste123456',
+        ]);
+        $this->call([
+            VaccineSeeder::class
         ]);
     }
 }
