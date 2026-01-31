@@ -11,9 +11,14 @@ use Barryvdh\DomPDF\Facade\Pdf;
 // use App\Http\Requests\Api\Vaccines;
 use App\Http\Requests\Api\Vaccine\VaccineRequest;
 use Exception;
+use Illuminate\Testing\Fluent\Concerns\Has;
 
 class VaccineController extends Controller
 {
+
+    public function __construct(
+        protected Vaccine $vaccine
+    ) {}
 
     public function store(VaccineRequest $request)
     {
@@ -55,6 +60,15 @@ class VaccineController extends Controller
 
             $query = Vaccine::where('user_id', $user->id);
             // vai buscar pelo o user_id
+
+            $query = $this->vaccine->newQuery();
+
+            // Parte dos filtros 
+
+            if ($request->has('name')) {
+                $query->where('name', 'like', '%' . $request->query('name') . '%');
+            }
+
 
             if ($request->boolean('nopage')) {
                 return response()->json([

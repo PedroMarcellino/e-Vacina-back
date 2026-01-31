@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Auth;
 
 class LeadController extends Controller
 {
+    public function __construct(
+        protected Lead $lead
+    ) {}
+
     public function store(CreateLeadRequest $request)
     {
         $lead = Lead::create($request->validated());
@@ -26,6 +30,12 @@ class LeadController extends Controller
         $user = Auth::user();
 
         $query = Lead::where('user_id', $user->id);
+
+        $query = $this->lead->newQuery();
+
+        if ($request->has('full_name')) {
+            $query->where('full_name', 'like', '%' . $request->query('full_name') . '%');
+        }
 
         if ($request->boolean('nopage')) {
             return response()->json([
