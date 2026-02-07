@@ -38,6 +38,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 //Route::middleware('auth:api')->get('/oauth/token/refresh', [TransientTokenController::class, 'refresh']);
 
 require_once __DIR__ . '/api/vaccines.php';
+require_once __DIR__ . '/api/equipaments.php';
 require_once __DIR__ . '/api/leads.php';
 require_once __DIR__ . '/api/families.php';
 require_once __DIR__ . '/api/user.php';
